@@ -42,14 +42,12 @@ while True:
     
 	if i == 5:
 		if random.randint(0, 10) > 5:
-			logging.info("Firing")
-			gameServer.sendMessage(ServerMessageTypes.FIRE)
+			movement.move(1)
 	elif i == 10:
-		movement.moveRight()
+		movement.turnTank(i/20)
 	elif i == 15:
-		logging.info("Moving randomly")
-		gameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {'Amount': random.randint(0, 10)})
-	movement.moveRight()
+		pass
+	movement.turnTank(i/20)
 	i = i + 1
 	if i > 20:
 		i = 0
