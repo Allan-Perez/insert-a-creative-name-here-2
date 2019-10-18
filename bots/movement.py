@@ -15,6 +15,6 @@ class Movement:
         self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': random.randint(0, 359)})
         #self.gameServer.sendMessage(ServerMessageTypes.FIRE)
     def turnTurret(self, angle):
-    	logging.info("Turning right by", angle)
+    	logging.info("Turning right to", angle)
         #ss
         self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': angle*360-180})
