@@ -1,6 +1,7 @@
 from communication import ServerComms
 from communication import ServerMessageTypes
 
+<<<<<<< HEAD
 import logging
 class Movement:
     gameServer : ServerComms = None
@@ -20,3 +21,7 @@ class Movement:
         logging.info("Moving {} units".format(value))
         self.gameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {'Amount': value})
 
+	def turnTurret(angle):
+		logging.info("Turning right to", angle)
+		#ss
+		self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': angle*360-180})
