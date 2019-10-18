@@ -14,7 +14,7 @@ class Movement:
         #ss
         self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': random.randint(0, 359)})
         #self.gameServer.sendMessage(ServerMessageTypes.FIRE)
-    def CalculateDistance(ownX,ownY,otherX,otherY):
-     	headingX = otherX - ownX;
-     	headingY = otherY - ownY;
-     	return math.sqrt((headingX * headingX) + (headingY * headingY));
+    def turnTurret(self, angle):
+    	logging.info("Turning right by", angle)
+        #ss
+        self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': angle*360-180})
