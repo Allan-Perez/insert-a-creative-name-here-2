@@ -1,27 +1,28 @@
 from communication import ServerComms
 from communication import ServerMessageTypes
 
-<<<<<<< HEAD
 import logging
 class Movement:
-    gameServer : ServerComms = None
-    def __init__(self, gameServer):
-        self.gameServer = gameServer
+	gameServer : ServerComms = None
+	def __init__(self, gameServer):
+		self.gameServer = gameServer
 
-    def turnTank(self, amount):
-        #0.5 == 0 degrees, 1 == 180 degrees, 0.25 = -90 degrees        
-        value = amount * 360 - 180
-        logging.info("Turning {} degrees".format(value))
-        self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': value})
+	def turnTank(self, amount):
+		#0.5 == 0 degrees, 1 == 180 degrees, 0.25 = -90 degrees        
+		value = amount * 360 - 180
+		value %= 360
+		logging.info("Turning {} degrees".format(value))
+		self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': value})
 
-    def move(self, amount):
-        #1 = c units
-        c = 10 #max movement        
-        value = amount * c
-        logging.info("Moving {} units".format(value))
-        self.gameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {'Amount': value})
-
-	def turnTurret(angle):
-		logging.info("Turning right to", angle)
+	def move(self, amount):
+		#1 = c units
+		c = 10 #max movement        
+		value = amount * c
+		logging.info("Moving {} units".format(value))
+		self.gameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {'Amount': value})
+	def turnTurret(self, angle):
+		value = angle*360-180
+		value %= 360
+		logging.info("Turning turret to {}".format(value))
 		#ss
-		self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': angle*360-180})
+		self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': value})
