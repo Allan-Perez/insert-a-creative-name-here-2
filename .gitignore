@@ -1,0 +1,6 @@
+mk1/
+.DS_STORE
+*.zip
+*.swp
+*.app
+__pycache__
