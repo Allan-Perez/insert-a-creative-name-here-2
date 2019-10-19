@@ -1,7 +1,10 @@
 import tensorflow.compat.v1 as tf
 import numpy as np
 import logging
+import os.path
+
 tf.disable_eager_execution()
+
 class Env:
 	def __init__(self):
 		self.observation_space = 15
@@ -22,8 +25,8 @@ def mlp(x, sizes, activation=tf.tanh, output_activation=None):
 		x = tf.layers.dense(x, units=size, activation=activation)
 	return tf.layers.dense(x, units=sizes[-1], activation=output_activation)
 
-def train(env_name='CartPole-v0', hidden_sizes=[32], lr=1e-2, 
-		  epochs=50, batch_size=5000, render=False):
+def train(hidden_sizes=[32], lr=1e-2, 
+		  epochs=50, batch_size=5000):
 
 	# make environment, check spaces, get obs / act dims
 	"""
@@ -33,30 +36,39 @@ def train(env_name='CartPole-v0', hidden_sizes=[32], lr=1e-2,
 	assert isinstance(env.action_space, Discrete), \
 		"This example only works for envs with discrete action spaces."
 	"""
+	models_dir = "models/"
 	env = Env()
 	obs_dim = env.observation_space # 
 	n_acts = env.action_space # q w e a s d and fire
+	if premodel:
+		premodel_file = intput("Name of pre trained model file: ")
+		os.path.isfile(models_dir + premodel_file)
+	else:
+		file = input("Name the new RL model: ")
+		# make core of policy network
+		obs_ph = tf.placeholder(shape=(None, obs_dim), dtype=tf.float32)
+		logits = mlp(obs_ph, sizes=hidden_sizes+[n_acts])
 
-	# make core of policy network
-	obs_ph = tf.placeholder(shape=(None, obs_dim), dtype=tf.float32)
-	logits = mlp(obs_ph, sizes=hidden_sizes+[n_acts])
+		# make action selection op (outputs int actions, sampled from policy)
+		actions = tf.squeeze(tf.multinomial(logits=logits,num_samples=1), axis=1)
 
-	# make action selection op (outputs int actions, sampled from policy)
-	actions = tf.squeeze(tf.multinomial(logits=logits,num_samples=1), axis=1)
+		# make loss function whose gradient, for the right data, is policy gradient
+		weights_ph = tf.placeholder(shape=(None,), dtype=tf.float32)
+		act_ph = tf.placeholder(shape=(None,), dtype=tf.int32)
+		action_masks = tf.one_hot(act_ph, n_acts)
+		log_probs = tf.reduce_sum(action_masks * tf.nn.log_softmax(logits), axis=1)
+		loss = -tf.reduce_mean(weights_ph * log_probs)
 
-	# make loss function whose gradient, for the right data, is policy gradient
-	weights_ph = tf.placeholder(shape=(None,), dtype=tf.float32)
-	act_ph = tf.placeholder(shape=(None,), dtype=tf.int32)
-	action_masks = tf.one_hot(act_ph, n_acts)
-	log_probs = tf.reduce_sum(action_masks * tf.nn.log_softmax(logits), axis=1)
-	loss = -tf.reduce_mean(weights_ph * log_probs)
+		# make train op
+		train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
 
-	# make train op
-	train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
+	# save model ops
+	saver = tf.train.Saver()
 
 	sess = tf.InteractiveSession()
 	sess.run(tf.global_variables_initializer())
-
+	if premodel:
+		saver.restore(sess, models_dir+premodel_file)
 # for training policy
 	def train_one_epoch():
 		# training > epochs[50] > batches[100] > episodes > steps
@@ -116,13 +128,17 @@ def train(env_name='CartPole-v0', hidden_sizes=[32], lr=1e-2,
 		batch_loss, batch_rets, batch_lens = train_one_epoch()
 		print('epoch: %3d \t loss: %.3f \t return: %.3f \t ep_len: %.3f'%
 				(i, batch_loss, np.mean(batch_rets), np.mean(batch_lens)))
+		# Save the variables to disk.
+		save_path = saver.save(sess, models_dir+file)
+		print("Model saved in path: %s" % save_path)
+
+
 
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--env_name', '--env', type=str, default='CartPole-v0') # gym-specific
-	parser.add_argument('--render', action='store_true') # gym-specific
 	parser.add_argument('--lr', type=float, default=1e-2)
+	parser.add_argument('--premodel', type=bool, default=False)
 	args = parser.parse_args()
 	print('\nUsing simplest formulation of policy gradient.\n')
-	train(env_name=args.env_name, render=args.render, lr=args.lr)
+	train(lr=args.lr, premodel=args.premodel)
