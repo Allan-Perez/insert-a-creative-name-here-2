@@ -18,11 +18,13 @@ class InformationExtraction:
 
 	def __init__(self, gameServer):
 		self.gameServer = gameServer
+		self.obs_dim = convertedGameObjects.shape
+		
 
 	def getAllInfo(self):
 		self.readObjectUpdate()
-		self.convertedGameObjects()
-		return convertedGameObjects
+		self.convertGameObjects()
+		return self.convertedGameObjects
 
 	def readObjectUpdate(self):
 		message = self.gameServer.readMessage()
