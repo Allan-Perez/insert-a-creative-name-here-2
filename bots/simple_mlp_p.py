@@ -1,3 +1,8 @@
+from communication import ServerComms
+from communication import ServerMessageTypes
+from movement import Movement
+from info import InformationExtraction
+from info import MyTank
 import tensorflow.compat.v1 as tf
 import numpy as np
 import logging
@@ -10,7 +15,7 @@ class Env:
 		self.movement_controler = movement_controler
 		self.info_extractor = info_extractor
 
-		self.observation_space = self.movement_controler.obs_dim[0]
+		self.observation_space = self.info_extractor.convertedGameObjects.shape[0]
 		self.action_space = 7
 
 	def reset(self):
@@ -22,12 +27,28 @@ class Env:
 		return np.random.rand()
 
 	def step(self, action):
+		# action[0] = w
+		# action[1] = a
+		# action[2] = s
+		# action[3] = d
+		# action[4] = q
+		# action[5] = e
+		# action[6] = f
 		# Debugging purposes
-		logging.info(action)
+		print("action")
+		a_decision = np.array(action)
+		print(action)
+		print("/action")
+
+		turnTruck = action[1]-action[3]
+		move = action[0]-action[2]
+		turnTurret = action[4]-action[5]
 		# 	Send action to server
-		self.movement_controler.turnTank(random.random())
-		self.movement_controler.move(random.random())
-		self.movement_controler.turnTurret(random.random())
+		self.movement_controler.turnTank(turnTruck)
+		self.movement_controler.move(move)
+		self.movement_controler.turnTurret(turnTurret)
+		if(action[6] >= 0.5):
+			self.movement_controler.fire()
 
 		#	Retreive new observation
 		obs = self.info_extractor.getAllInfo()
@@ -35,10 +56,10 @@ class Env:
 		rew = self.compute_reward(obs)
 		
 		#	Return new state, reward, and whether the game is over
-		return np.random.rand(15), \
-			np.random.rand(), \
+		return self.info_extractor.getAllInfo(), \
+			rew, \
 			[False if np.random.rand()>1e-1 else True][0], \
-			np.random.rand()
+			0
 
 def mlp(x, sizes, activation=tf.tanh, output_activation=None):
 	# feedforward neural network.
@@ -46,14 +67,14 @@ def mlp(x, sizes, activation=tf.tanh, output_activation=None):
 		x = tf.layers.dense(x, units=size, activation=activation)
 	return tf.layers.dense(x, units=sizes[-1], activation=output_activation)
 
-def train(env, hidden_sizes=[32], lr=1e-2, premodel=False 
+def train(env, hidden_sizes=[32], lr=1e-2, premodel=False, 
 		  epochs=50, batch_size=5000):
 
 	models_dir = "models/"
 	obs_dim = env.observation_space # 
 	n_acts = env.action_space # q w e a s d and fire
 	if premodel:
-		premodel_file = intput("Name of pre trained model file: ")
+		premodel_file = input("Name of pre trained model file: ")
 		os.path.isfile(models_dir + premodel_file)
 		# TODO: we need to set the variables/placeholders so that the model can be restored and used.
 	else:
@@ -63,7 +84,9 @@ def train(env, hidden_sizes=[32], lr=1e-2, premodel=False
 		logits = mlp(obs_ph, sizes=hidden_sizes+[n_acts])
 
 		# make action selection op (outputs int actions, sampled from policy)
-		actions = tf.squeeze(tf.multinomial(logits=logits,num_samples=1), axis=1)
+		# actions = tf.squeeze(tf.multinomial(logits=logits,num_samples=1), axis=0)
+		# actions = tf.multinomial(logits=logits,num_samples=7)
+		actions = logits
 
 		# make loss function whose gradient, for the right data, is policy gradient
 		weights_ph = tf.placeholder(shape=(None,), dtype=tf.float32)

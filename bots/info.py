@@ -58,7 +58,6 @@ class InformationExtraction:
 
 	def __init__(self, gameServer):
 		self.gameServer = gameServer
-		self.obs_dim = convertedGameObjects.shape
 		
 
 	def getAllInfo(self):
@@ -115,7 +114,6 @@ class InformationExtraction:
 				elif key == 'TimeStamp':
 					timeToPrint = self.getTimeValue(time.clock() - gameObject[key])
 					convertedDictionary.append(timeToPrint)
-					print(gameObject[key])
 			key = idOfObject
 			if key in self.dictionaryIndex:				
 				self.pasteObjectToConvertedGameObjects(convertedDictionary,self.dictionaryIndex[key])
@@ -228,7 +226,6 @@ class InformationExtraction:
 				distance = math.sqrt((intersect_pt[0]-posX)**2 + (intersect_pt[1]-posY)**2)
 				if distance < closest_distance:
 					closest_distance = distance
-					print("INTERSECTION", intersect_pt, pl_line)
 			else:
 				continue
 		return closest_distance

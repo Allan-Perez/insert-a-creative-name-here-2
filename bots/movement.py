@@ -1,6 +1,5 @@
 from communication import ServerComms
 from communication import ServerMessageTypes
-import bots
 
 import logging
 class Movement:
@@ -61,4 +60,7 @@ class Movement:
         #stops all movement and turning of tank
         #usually called each frame
         self.gameServer.sendMessage(ServerMessageTypes.STOPALL)
+
+    def fire(self):
+        self.gameServer.sendMessage(ServerMessageTypes.FIRE)
 
