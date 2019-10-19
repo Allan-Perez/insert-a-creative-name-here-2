@@ -45,9 +45,14 @@ myTank = MyTank(tankCreationMsg)
 # Main loop - read game messages, ignore them and randomly perform actions
 def mainLoop():
     message = gameServer.readMessage()
-    movement.turnTank(random.random())
-    movement.move(random.random())
-    movement.turnTurret(random.random())
+
+    if 'Id' in message.keys():
+        if message['Id'] == myTank.getId():
+            myTank.updateInternalState(message)
+
+    movement.turnTankLeft(2, myTank.getHeading())
+
+    movement.turnTurretLeft(2, myTank.getTurretHeading())
 
 # starter
 printedFps = False
