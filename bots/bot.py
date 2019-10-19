@@ -11,6 +11,7 @@ import time
 from communication import ServerComms
 from communication import ServerMessageTypes
 from movement import Movement
+from neuralNetwork import NeuralNetwork
 
 # Parse command line args
 parser = argparse.ArgumentParser()
@@ -59,5 +60,3 @@ while True:
 		printedFps = True
 	else:
 		printedFps = False
-
-
