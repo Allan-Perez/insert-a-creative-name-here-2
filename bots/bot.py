@@ -50,6 +50,7 @@ def mainLoop():
 # starter
 printedFps = False
 while True:
+    logging.info(infoExtraction.getAllInfo())
     startTime = time.clock()
     movement.stopAll()
     mainLoop()
