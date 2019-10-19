@@ -1,8 +1,8 @@
-
 from communication import ServerComms
 from communication import ServerMessageTypes
 import numpy as np 
 import logging
+import time
 import math
 
 
@@ -13,16 +13,22 @@ playground_points = [(70, 70), (70, -70), (40, -100), (40, -120), (-40, -120), (
 class InformationExtraction:
 	gameObjects = []
 	convertedGameObjects = np.zeros(119)
+	dictionaryIndex = {} #dictionary of indexes
 	gameServer : ServerComms = None
 
 	def __init__(self, gameServer):
 		self.gameServer = gameServer
 
+	def getAllInfo(self):
+		self.readObjectUpdate()
+		self.convertedGameObjects()
+		return convertedGameObjects
+
 	def readObjectUpdate(self):
 		message = self.gameServer.readMessage()
 		#18 means that it is a game object
 		if message['messageType'] == 18:
-
+			message['TimeStamp'] = time.clock()
 			# if the array is empty append first game object
 			if len(self.gameObjects) == 0:
 				self.gameObjects.append(message)
@@ -39,24 +45,23 @@ class InformationExtraction:
 					self.gameObjects.append(message)
 	def pasteObjectToConvertedGameObjects(self, convDict, index=0):
 		# paste the object into the empty spaces
-		for i in range(4):
-			if convDict[0] == self.convertedGameObjects[index + 7*i]:				
-				self.convertedGameObjects[index + i*7: index + (i + 1) * 7] = convDict
-				break
-			if self.convertedGameObjects[index + i * 7] == 0:
-				self.convertedGameObjects[index + i*7: index + (i + 1) * 7] = convDict
-				break    	
+		index *= 7
+		self.convertedGameObjects[index: index + 7] = convDict
+
+	def getTimeValue(self, time, c=0.4):
+		return 1 / (1 + math.e**(-2 + (9 * time) / c))
+
 	def convertGameObjects(self):
 		for gameObject in self.gameObjects:
 			convertedDictionary = []
-
+			idOfObject = 0
 			for key in gameObject.keys():
 				if key == 'Id':
-					convertedDictionary.append( 1/ (-gameObject[key])) #just ids
+					idOfObject = gameObject[key]
 				elif key == 'X':    					
-					convertedDictionary.append((gameObject[key] + 70) / 140) #top is 1 and bottom is zero
+					convertedDictionary.append((gameObject[key] + 80) / 160) #top is 1 and bottom is zero
 				elif key == 'Y':    					
-					convertedDictionary.append((gameObject[key] + 100) / 200) #left is 1 and right is zero
+					convertedDictionary.append((gameObject[key] + 115) / 230) #left is 1 and right is zero
 				elif key == 'Heading':    					
 					convertedDictionary.append(((gameObject[key]/360)+0.5)%1) #0.5 == 0 degrees, 1 == 180 degrees, 0.25 = -90 degrees     
 				elif key == 'TurretHeading':  					
@@ -64,20 +69,71 @@ class InformationExtraction:
 				elif key == 'Health':
 					convertedDictionary.append(gameObject[key]/10)  					
 				elif key == 'Ammo':
-					convertedDictionary.append(gameObject[key]/10)  
-			if gameObject['Type'] == 'Tank':
-				if gameObject['Name'] == 'TeamA:RandomBot':
-					self.pasteObjectToConvertedGameObjects(convertedDictionary)
-				else: #enemy tanks
-					self.pasteObjectToConvertedGameObjects(convertedDictionary,28)
+					convertedDictionary.append(gameObject[key]/10)
+				elif key == 'TimeStamp':
+					timeToPrint = self.getTimeValue(time.clock() - gameObject[key])
+					convertedDictionary.append(timeToPrint)
+					print(gameObject[key])
+			key = idOfObject
+			if key in self.dictionaryIndex:				
+				self.pasteObjectToConvertedGameObjects(convertedDictionary,self.dictionaryIndex[key])
+			elif gameObject['Type'] == 'Tank':
+				if gameObject['Name'] == 'TeamA:1':
+					self.dictionaryIndex[key] = 0
+					self.pasteObjectToConvertedGameObjects(convertedDictionary,0)
+				elif gameObject['Name'] == 'TeamA:2':
+					self.dictionaryIndex[key] = 1
+					self.pasteObjectToConvertedGameObjects(convertedDictionary,1)
+				elif gameObject['Name'] == 'TeamA:3':
+					self.dictionaryIndex[key] = 2
+					self.pasteObjectToConvertedGameObjects(convertedDictionary,2)
+				elif gameObject['Name'] == 'TeamA:4':
+					self.dictionaryIndex[key] = 3
+					self.pasteObjectToConvertedGameObjects(convertedDictionary,3)
+				else:
+					for i in range(4):
+						index = 4+i
+						if not index in self.dictionaryIndex.values():
+							self.dictionaryIndex[key] = index
+							self.pasteObjectToConvertedGameObjects(convertedDictionary,index)
+							break
 			elif gameObject['Type'] == 'AmmoPickup':
-				self.pasteObjectToConvertedGameObjects(convertedDictionary,56)
+				for i in range(4):
+					index = 8+i
+					if not index in self.dictionaryIndex.values():
+						self.dictionaryIndex[key] = index
+						self.pasteObjectToConvertedGameObjects(convertedDictionary,index)
+						break
 			elif gameObject['Type'] == 'HealthPickup':
-				self.pasteObjectToConvertedGameObjects(convertedDictionary,84)
-			else:				
-				for i in range(7):
-					self.convertedGameObjects[112:] = convertedDictionary
-	def wallDistance(posX, posY, heading, forward=True):
+				for i in range(4):
+					index = 12 + i
+					if not index in self.dictionaryIndex.values():
+						self.dictionaryIndex[key] = index
+						self.pasteObjectToConvertedGameObjects(convertedDictionary,index)
+						break
+			else:
+				self.dictionaryIndex[key] = 16
+				self.pasteObjectToConvertedGameObjects(convertedDictionary,16)
+
+			#if gameObject['Type'] == 'Tank':
+			#	if gameObject['Name'] == 'TeamA:1':
+			#		self.ourTeam(convertedDictionary,0)
+			#	if gameObject['Name'] == 'TeamA:2':
+			#		self.ourTeam(convertedDictionary,7)
+			#	if gameObject['Name'] == 'TeamA:3':
+			#		self.ourTeam(convertedDictionary,14)
+			#	if gameObject['Name'] == 'TeamA:4':
+			#		self.ourTeam(convertedDictionary,21)
+			#	else: #enemy tanks
+			#		self.pasteObjectToConvertedGameObjects(convertedDictionary,28)
+			#elif gameObject['Type'] == 'AmmoPickup':
+			#	self.pasteObjectToConvertedGameObjects(convertedDictionary,56)
+			#elif gameObject['Type'] == 'HealthPickup':
+			#	self.pasteObjectToConvertedGameObjects(convertedDictionary,84)
+			#else:				
+			#	for i in range(7):
+			#		self.convertedGameObjects[112:] = convertedDictionary
+	def wallDistance(self, posX, posY, heading, forward=True):
 		def further_point(oldx, oldy, angle):
 			angle = angle % 360
 			x, y = oldx, oldy
