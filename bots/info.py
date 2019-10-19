@@ -19,6 +19,10 @@ class InformationExtraction:
 	def __init__(self, gameServer):
 		self.gameServer = gameServer
 
+	def getAllInfo(self):
+		self.readObjectUpdate()
+		self.convertedGameObjects()
+
 	def readObjectUpdate(self):
 		message = self.gameServer.readMessage()
 		#18 means that it is a game object
@@ -42,6 +46,10 @@ class InformationExtraction:
 		# paste the object into the empty spaces
 		index *= 7
 		self.convertedGameObjects[index: index + 7] = convDict
+
+	def getTimeValue(self, time, c=0.4):
+		return 1 / (1 + math.e**(-2 + (9 * time) / c))
+
 	def convertGameObjects(self):
 		for gameObject in self.gameObjects:
 			convertedDictionary = []
@@ -62,7 +70,9 @@ class InformationExtraction:
 				elif key == 'Ammo':
 					convertedDictionary.append(gameObject[key]/10)
 				elif key == 'TimeStamp':
-					convertedDictionary.append(gameObject[key])
+					timeToPrint = self.getTimeValue(time.clock() - gameObject[key])
+					convertedDictionary.append(timeToPrint)
+					print(gameObject[key])
 			key = idOfObject
 			if key in self.dictionaryIndex:				
 				self.pasteObjectToConvertedGameObjects(convertedDictionary,self.dictionaryIndex[key])
@@ -82,21 +92,21 @@ class InformationExtraction:
 				else:
 					for i in range(4):
 						index = 4+i
-						if not index in self.dictionaryIndex:
+						if not index in self.dictionaryIndex.values():
 							self.dictionaryIndex[key] = index
 							self.pasteObjectToConvertedGameObjects(convertedDictionary,index)
 							break
 			elif gameObject['Type'] == 'AmmoPickup':
 				for i in range(4):
 					index = 8+i
-					if not index in self.dictionaryIndex:
+					if not index in self.dictionaryIndex.values():
 						self.dictionaryIndex[key] = index
 						self.pasteObjectToConvertedGameObjects(convertedDictionary,index)
 						break
 			elif gameObject['Type'] == 'HealthPickup':
 				for i in range(4):
 					index = 12 + i
-					if not index in self.dictionaryIndex:
+					if not index in self.dictionaryIndex.values():
 						self.dictionaryIndex[key] = index
 						self.pasteObjectToConvertedGameObjects(convertedDictionary,index)
 						break
