@@ -5,3 +5,4 @@ mk1/
 *.app
 __pycache__
 venv
+.vscode
