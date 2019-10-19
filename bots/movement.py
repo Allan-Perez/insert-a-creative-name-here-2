@@ -1,6 +1,6 @@
 from communication import ServerComms
 from communication import ServerMessageTypes
-from bots import bot
+import bots
 
 import logging
 class Movement:
@@ -15,39 +15,19 @@ class Movement:
         logging.info("Turning {} degrees".format(value))
         self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': value})
 
-    def turnTankLeft(self, amount):
-        currentHeading = None
-
-        gameObjects = bot.infoExtraction.gameObjects
-        botArgsName = bot.args.name
-        # if the object's name is identical to the name of the bot created
-        for object in gameObjects:
-            if object['Name'] == botArgsName:
-                # set its current heading to the value from dict
-                currentHeading = object['Heading']
-                break
+    def turnTankLeft(self, amount, currHeading):
         c = 10
-        change = (amount * c) % 360
-        value = currentHeading + change
+        amount *= c
+        value = currHeading - amount
+        self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)
         self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': value})
 
-
-    def turnTankRight(self, amount):
-        currentHeading = None
-
-        gameObjects = bot.infoExtraction.gameObjects
-        botArgsName = bot.args.name
-        # if the object's name is identical to the name of the bot created
-        for object in gameObjects:
-            if object['Name'] == botArgsName:
-                # set its current heading to the value from dict
-                currentHeading = object['Heading']
-                break
+    def turnTankRight(self, amount, currHeading):
         c = 10
-        change = (amount * c) % 360
-        value = currentHeading + change
+        amount *= c
+        value = currHeading + amount
+        self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)
         self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': value})
-
 
     def move(self, amount):
         #1 = c units
@@ -63,40 +43,19 @@ class Movement:
         #ss
         self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': value})
 
-    def turnTurretLeft(self, amount):
-        currentTurrHeading = None
-        # if the object's name is identical to the name of the bot created
-        gameObjects = bot.infoExtraction.gameObjects
-        botArgsName = bot.args.name
-
-        for object in gameObjects:
-            if object['Name'] == botArgsName:
-                # set its current heading to the value from dict
-                currentTurrHeading = object['TurretHeading']
-                break
+    def turnTurretRight(self, amount, currTurHeading):
         c = 10
-        change = (amount * c) % 360
-        value = currentTurrHeading + change
+        amount *= c
+        value = currTurHeading + amount
+        self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)
         self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': value})
 
-
-    def turnTurretRight(self, amount):
-        currentTurrHeading = None
-        # if the object's name is identical to the name of the bot created
-        gameObjects = bot.infoExtraction.gameObjects
-        botArgsName = bot.args.name
-
-        for object in gameObjects:
-            if object['Name'] == botArgsName:
-                # set its current heading to the value from dict
-                currentTurrHeading = object['Heading']
-                break
+    def turnTurretLeft(self, amount, currTurHeading):
         c = 10
-        change = (amount * c) % 360
-        value = currentTurrHeading + change
+        amount *= c
+        value = currTurHeading - amount
+        self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)
         self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': value})
-
-
 
     def stopAll(self):
         #stops all movement and turning of tank
