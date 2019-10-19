@@ -11,8 +11,17 @@ class Env:
 		self.action_space = 7
 
 	def reset(self):
+		# 	Retreive first observation
+
+
 		return np.random.rand(15)
+	def compute_reward(self, state):
+
 	def step(self, action):
+		# 	Send action to server
+		#	Retreive new observation
+		#	Compute Reward
+		#	Return new state, reward, and whether the game is over.
 		logging.info(action)
 		return np.random.rand(15), \
 			np.random.rand(), \
@@ -25,7 +34,7 @@ def mlp(x, sizes, activation=tf.tanh, output_activation=None):
 		x = tf.layers.dense(x, units=size, activation=activation)
 	return tf.layers.dense(x, units=sizes[-1], activation=output_activation)
 
-def train(hidden_sizes=[32], lr=1e-2, 
+def train(hidden_sizes=[32], lr=1e-2, premodel=False 
 		  epochs=50, batch_size=5000):
 
 	# make environment, check spaces, get obs / act dims
@@ -43,6 +52,7 @@ def train(hidden_sizes=[32], lr=1e-2,
 	if premodel:
 		premodel_file = intput("Name of pre trained model file: ")
 		os.path.isfile(models_dir + premodel_file)
+		# TODO: we need to set the variables/placeholders so that the model can be restored and used.
 	else:
 		file = input("Name the new RL model: ")
 		# make core of policy network
@@ -137,8 +147,21 @@ def train(hidden_sizes=[32], lr=1e-2,
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser()
+	parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output')
+	parser.add_argument('-H', '--hostname', default='127.0.0.1', help='Hostname to connect to')
+	parser.add_argument('-p', '--port', default=8052, type=int, help='Port to connect to')
+	parser.add_argument('-n', '--name', default='TeamA:RandomBot', help='Name of bot')
 	parser.add_argument('--lr', type=float, default=1e-2)
 	parser.add_argument('--premodel', type=bool, default=False)
 	args = parser.parse_args()
+
 	print('\nUsing simplest formulation of policy gradient.\n')
+
+	# Set up console logging
+	if args.debug:
+		logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.DEBUG)
+	else:
+		logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO)
+	
 	train(lr=args.lr, premodel=args.premodel)
+
