@@ -36,6 +36,74 @@ class InformationExtraction:
 
         print(message, type(message))
 
+    def wallDistance(posX, posY, heading, forward=True):
+        def further_point(oldx, oldy, angle):
+            angle = angle % 360
+            x, y = oldx, oldy
+            if angle == 0: #angle increases in mathematically negative direction
+                x = oldx + 10
+            elif angle == 90:
+                y = oldy + 10
+            elif angle == 180:
+                x = oldx - 10
+            elif angle == 270:
+                y = oldy - 10
+            elif 0 < angle < 180:
+                y = oldy + 10
+                x = oldx + 10 * math.tan(angle)
+            else:
+                y = oldy - 10
+                x = oldx - 10 * math.tan(angle)
+                
+        print("x, y =", x, y)
+        return x, y
+
+        def line_intersection(line1, line2):
+            xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+            ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
+
+        def det(a, b):
+            return a[0] * b[1] - a[1] * b[0]
+
+        div = det(xdiff, ydiff)
+        #print("vnutri", line1, line2, div)
+        if div == 0:
+            return "none"
+
+        d = (det(*line1), det(*line2))
+        x = det(d, xdiff) / div
+        y = det(d, ydiff) / div
+        return x, y
+
+        closest_distance = 100000000000
+    
+        if forward:
+            a = "forward"
+        else:
+            a = "backward"
+            heading = heading + 180
+        logging.info("Calculating closest wall in {} direction".format(a))
+        current_pos = (posX, posY)
+        future_pos = further_point(posX, posY, heading)
+        line = (current_pos, future_pos)
+        for i in range((len(playground_points))):
+            if i == 0:
+                pl_line = (playground_points[i], playground_points[-1])
+            else:
+                pl_line = (playground_points[i], playground_points[i-1])
+            intersect_pt = line_intersection(line, pl_line)
+            if intersect_pt == "none":
+                continue
+            if ((pl_line[0][0] <= intersect_pt[0] <= pl_line[1][0] or pl_line[0][0] >= intersect_pt[0] >= pl_line[1][0])
+                    and (pl_line[0][1] <= intersect_pt[1] <= pl_line[1][1] or pl_line[0][1] >= intersect_pt[1] >= pl_line[1][1])):
+                distance = math.sqrt((intersect_pt[0]-posX)**2 + (intersect_pt[1]-posY)**2)
+                if distance < closest_distance:
+                    closest_distance = distance
+                    print("INTERSECTION", intersect_pt, pl_line)
+            else:
+                continue
+        return closest_distance
+
 
 
 class GameObject:

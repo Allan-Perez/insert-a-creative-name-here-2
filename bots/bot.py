@@ -11,7 +11,6 @@ import time
 from communication import ServerComms
 from communication import ServerMessageTypes
 from movement import Movement
-from neuralNetwork import NeuralNetwork
 from info import InformationExtraction
 
 
