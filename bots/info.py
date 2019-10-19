@@ -22,6 +22,7 @@ class InformationExtraction:
 	def getAllInfo(self):
 		self.readObjectUpdate()
 		self.convertedGameObjects()
+		return convertedGameObjects
 
 	def readObjectUpdate(self):
 		message = self.gameServer.readMessage()
