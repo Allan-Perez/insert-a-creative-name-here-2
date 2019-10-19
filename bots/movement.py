@@ -15,14 +15,14 @@ class Movement:
         self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': value})
 
     def turnTankLeft(self, amount, currHeading):
-        c = 10
+        c = 50
         amount *= c
         value = currHeading - amount
         self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)
         self.gameServer.sendMessage(ServerMessageTypes.TURNTOHEADING, {'Amount': value})
 
     def turnTankRight(self, amount, currHeading):
-        c = 10
+        c = 50
         amount *= c
         value = currHeading + amount
         self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)
@@ -30,7 +30,7 @@ class Movement:
 
     def move(self, amount):
         #1 = c units
-        c = 10 #max movement
+        c = 50 #max movement
         value = amount * c
         logging.info("Moving {} units".format(value))
         self.gameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {'Amount': value})
@@ -43,14 +43,14 @@ class Movement:
         self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': value})
 
     def turnTurretRight(self, amount, currTurHeading):
-        c = 10
+        c = 50
         amount *= c
         value = currTurHeading + amount
         self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)
         self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': value})
 
     def turnTurretLeft(self, amount, currTurHeading):
-        c = 10
+        c = 50
         amount *= c
         value = currTurHeading - amount
         self.gameServer.sendMessage(ServerMessageTypes.STOPTURN)

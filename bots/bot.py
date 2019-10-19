@@ -41,7 +41,6 @@ gameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
 tankCreationMsg = gameServer.readMessage()
 
 myTank = MyTank(tankCreationMsg)
-
 # Main loop - read game messages, ignore them and randomly perform actions
 def mainLoop():
     message = gameServer.readMessage()
