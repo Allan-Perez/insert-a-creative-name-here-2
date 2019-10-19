@@ -17,9 +17,12 @@ class Movement:
 
     def turnTankLeft(self, amount):
         currentHeading = None
+
+        gameObjects = bot.infoExtraction.gameObjects
+        botArgsName = bot.args.name
         # if the object's name is identical to the name of the bot created
-        for object in bot.infoExtraction.gameObjects:
-            if object['Name'] == bot.args.name:
+        for object in gameObjects:
+            if object['Name'] == botArgsName:
                 # set its current heading to the value from dict
                 currentHeading = object['Heading']
                 break
@@ -31,9 +34,12 @@ class Movement:
 
     def turnTankRight(self, amount):
         currentHeading = None
+
+        gameObjects = bot.infoExtraction.gameObjects
+        botArgsName = bot.args.name
         # if the object's name is identical to the name of the bot created
-        for object in bot.infoExtraction.gameObjects:
-            if object['Name'] == bot.args.name:
+        for object in gameObjects:
+            if object['Name'] == botArgsName:
                 # set its current heading to the value from dict
                 currentHeading = object['Heading']
                 break
@@ -60,8 +66,11 @@ class Movement:
     def turnTurretLeft(self, amount):
         currentTurrHeading = None
         # if the object's name is identical to the name of the bot created
-        for object in bot.infoExtraction.gameObjects:
-            if object['Name'] == bot.args.name:
+        gameObjects = bot.infoExtraction.gameObjects
+        botArgsName = bot.args.name
+
+        for object in gameObjects:
+            if object['Name'] == botArgsName:
                 # set its current heading to the value from dict
                 currentTurrHeading = object['TurretHeading']
                 break
@@ -74,8 +83,11 @@ class Movement:
     def turnTurretRight(self, amount):
         currentTurrHeading = None
         # if the object's name is identical to the name of the bot created
-        for object in bot.infoExtraction.gameObjects:
-            if object['Name'] == bot.args.name:
+        gameObjects = bot.infoExtraction.gameObjects
+        botArgsName = bot.args.name
+
+        for object in gameObjects:
+            if object['Name'] == botArgsName:
                 # set its current heading to the value from dict
                 currentTurrHeading = object['Heading']
                 break
