@@ -11,6 +11,8 @@ import time
 from communication import ServerComms
 from communication import ServerMessageTypes
 from movement import Movement
+from info import InformationExtraction
+
 
 # Parse command line args
 parser = argparse.ArgumentParser()
@@ -29,6 +31,8 @@ else:
 
 # Connect to game server
 gameServer = ServerComms(args.hostname, args.port)
+# initialize information extraction library
+infoExtraction = InformationExtraction(gameServer)
 #init movement library
 movement = Movement(gameServer)
 # Spawn our tank
@@ -37,10 +41,12 @@ gameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
 
 # Main loop - read game messages, ignore them and randomly perform actions
 def mainLoop():
+
 	message = gameServer.readMessage()
 	movement.turnTank(random.random())
 	movement.move(random.random())
 	movement.turnTurret(random.random())
+	infoExtraction.readObjectUpdate()
 
 
 #starter
