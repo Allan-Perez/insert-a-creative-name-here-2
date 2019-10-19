@@ -7,7 +7,7 @@ import binascii
 import struct
 import argparse
 import random
-
+import time
 from communication import ServerComms
 from communication import ServerMessageTypes
 from movement import Movement
@@ -36,19 +36,28 @@ logging.info("Creating tank with name '{}'".format(args.name))
 gameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
 
 # Main loop - read game messages, ignore them and randomly perform actions
-i=0
-while True:
+def mainLoop():
 	message = gameServer.readMessage()
-    
-	if i == 5:
-		if random.randint(0, 10) > 5:
-			movement.move(1)
-	elif i == 10:
-		movement.turnTank(i/20)
-	elif i == 15:
-		pass
-	movement.turnTank(i/20)
-	i = i + 1
-	if i > 20:
-		i = 0
+	movement.turnTank(random.random())
+	movement.move(random.random())
+	movement.turnTurret(random.random())
+
+
+#starter
+printedFps = False
+while True:
+	startTime = time.clock()
+	movement.stopAll()
+	mainLoop()
+	endTime = time.clock()
+	fps = 1.0 / (endTime - startTime)
+	
+
+	if(int(time.clock()) & 10 and printedFps is False):
+		#print every 10 seconds
+		print("{} fps}", fps)
+		printedFps = True
+	else:
+		printedFps = False
+
 

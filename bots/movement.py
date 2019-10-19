@@ -20,9 +20,16 @@ class Movement:
 		value = amount * c
 		logging.info("Moving {} units".format(value))
 		self.gameServer.sendMessage(ServerMessageTypes.MOVEFORWARDDISTANCE, {'Amount': value})
+
 	def turnTurret(self, angle):
 		value = angle*360-180
 		value %= 360
 		logging.info("Turning turret to {}".format(value))
 		#ss
 		self.gameServer.sendMessage(ServerMessageTypes.TURNTURRETTOHEADING, {'Amount': value})
+
+	def stopAll(self):
+		#stops all movement and turning of tank
+		#usually called each frame
+		self.gameServer.sendMessage(ServerMessageTypes.STOPALL)
+
