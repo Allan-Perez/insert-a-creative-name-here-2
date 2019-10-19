@@ -4,11 +4,11 @@ import numpy as np
 
 import logging
 
-gameObjects = []
-convertedGameObjects = np.zeros(119)
 
 
 class InformationExtraction:
+	gameObjects = []
+	convertedGameObjects = np.zeros(119)
 	gameServer : ServerComms = None
 
 	def __init__(self, gameServer):
@@ -20,30 +20,30 @@ class InformationExtraction:
 		if message['messageType'] == 18:
 
 			# if the array is empty append first game object
-			if len(gameObjects) == 0:
-				gameObjects.append(message)
+			if len(self.gameObjects) == 0:
+				self.gameObjects.append(message)
 
 			else:
 				used = False
-				for i,dict in enumerate(gameObjects):
+				for i,dict in enumerate(self.gameObjects):
 					if dict['Id'] == message['Id']:
 						# update element
-						gameObjects[i] = message
+						self.gameObjects[i] = message
 						used = True
 						break
 				if not used:
-					gameObjects.append(message)
+					self.gameObjects.append(message)
 	def pasteObjectToConvertedGameObjects(self, convDict, index=0):
 		# paste the object into the empty spaces
 		for i in range(4):
-			if convDict[0] == convertedGameObjects[index + 7*i]:				
-				convertedGameObjects[index + i: index + (i + 1) * 7] = convDict
+			if convDict[0] == self.convertedGameObjects[index + 7*i]:				
+				self.convertedGameObjects[index + i*7: index + (i + 1) * 7] = convDict
 				break
-			if convertedGameObjects[index + i * 7] == 0:
-				convertedGameObjects[index + i: index + (i + 1) * 7] = convDict
+			if self.convertedGameObjects[index + i * 7] == 0:
+				self.convertedGameObjects[index + i*7: index + (i + 1) * 7] = convDict
 				break    	
 	def convertGameObjects(self):
-		for gameObject in gameObjects:
+		for gameObject in self.gameObjects:
 			convertedDictionary = []
 
 			for key in gameObject.keys():
@@ -61,16 +61,15 @@ class InformationExtraction:
 					convertedDictionary.append(gameObject[key]/10)  					
 				elif key == 'Ammo':
 					convertedDictionary.append(gameObject[key]/10)  
-
 			if gameObject['Type'] == 'Tank':
 				if gameObject['Name'] == 'OurTeam:Bots':
-					pasteObjectToConvertedGameObjects(convertedDictionary)
+					self.pasteObjectToConvertedGameObjects(convertedDictionary)
 				else: #enemy tanks
-					pasteObjectToConvertedGameObjects(convertedDictionary,28)
+					self.pasteObjectToConvertedGameObjects(convertedDictionary,28)
 			elif gameObject['Type'] == 'AmmoPickup':
-					pasteObjectToConvertedGameObjects(convertedDictionary,56)
+				self.pasteObjectToConvertedGameObjects(convertedDictionary,56)
 			elif gameObject['Type'] == 'HealthPickup':
-					pasteObjectToConvertedGameObjects(convertedDictionary,84)
+				self.pasteObjectToConvertedGameObjects(convertedDictionary,84)
 			else:				
 				for i in range(7):
-					convertedGameObjects[112 + i: 112 + (i + 1) * 7] = convertedDictionary
+					self.convertedGameObjects[112:] = convertedDictionary
