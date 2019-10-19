@@ -22,19 +22,6 @@ np.random.seed(123)
 env.seed(123)
 nb_actions = env.action_space.n
 
-# Next, we build a very simple model.
-'''model = Sequential()
-model.add(Flatten(input_shape=(1,) + env.observation_space.shape))
-model.add(Dense(16))
-model.add(Activation('relu'))
-model.add(Dense(16))
-model.add(Activation('relu'))
-model.add(Dense(16))
-model.add(Activation('relu'))
-model.add(Dense(nb_actions))
-model.add(Activation('relu'))
-print(model.summary())'''
-
 input = Input(shape=(1,) + env.observation_space.shape)
 lastLayer = Flatten()(input)
 lastLayer = Dense(16)(lastLayer)
@@ -44,14 +31,11 @@ lastLayer = Activation('relu')(lastLayer)
 lastLayer = Dense(16)(lastLayer)
 connectingLayer = Activation('relu')(lastLayer)
 
-temp = Dense(nb_actions)(connectingLayer)
-output = Activation('linear')(temp)
-
-'''movement = Dense(6)(connectingLayer)
+movement = Dense(6)(connectingLayer)
 movementOutput = Activation('relu')(movement)
 firing = Dense(1)(connectingLayer)
-firingOutput = Activation(,'softmax')(firing)
-output = concatenate([movementOutput, firingOutput])'''
+firingOutput = Activation('softmax')(firing)
+output = concatenate([movementOutput, firingOutput])
 
 model = Model(input, output)
 print(model.summary())
@@ -65,7 +49,7 @@ sarsa.compile(Adam(lr=1e-3), metrics=['mae'])
 # Okay, now it's time to learn something! We visualize the training here for show, but this
 # slows down training quite a lot. You can always safely abort the training prematurely using
 # Ctrl + C.
-sarsa.fit(env, nb_steps=500, visualize=False, verbose=2)
+sarsa.fit(env, nb_steps=5000, visualize=False, verbose=2)
 sarsa.fit(env, nb_steps=50000, visualize=True, verbose=2)
 
 # After training is done, we save the final weights.
