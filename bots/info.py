@@ -6,49 +6,49 @@ import time
 import math
 
 playground_points = [(70, 70), (70, -70), (40, -100), (40, -120), (-40, -120), (-40, -100), (-70, -70), (-70, 70),
-                     (-40, 70), (-40, 120), (40, 120), (40, 70)]
+					 (-40, 70), (-40, 120), (40, 120), (40, 70)]
 class MyTank:
-    id = None
-    name = None
-    x = None
-    y = None
-    heading = None
-    turretHeading = None
+	id = None
+	name = None
+	x = None
+	y = None
+	heading = None
+	turretHeading = None
 
-    def __init__(self, dict):
-        self.id = dict['Id']
-        self.name = dict['Name']
-        self.x = dict['X']
-        self.y = dict['Y']
-        self.heading = dict['Heading']
-        self.turretHeading = dict['TurretHeading']
+	def __init__(self, dict):
+		self.id = dict['Id']
+		self.name = dict['Name']
+		self.x = dict['X']
+		self.y = dict['Y']
+		self.heading = dict['Heading']
+		self.turretHeading = dict['TurretHeading']
 
-    def getHeading(self):
-        return self.heading
+	def getHeading(self):
+		return self.heading
 
-    def getTurretHeading(self):
-        return self.turretHeading
+	def getTurretHeading(self):
+		return self.turretHeading
 
-    def getId(self):
-        return self.id
+	def getId(self):
+		return self.id
 
-    def setHeading(self, heading):
-        self.heading = heading
+	def setHeading(self, heading):
+		self.heading = heading
 
-    def setTurretHeading(self, turretheading):
-        self.turretHeading = turretheading
+	def setTurretHeading(self, turretheading):
+		self.turretHeading = turretheading
 
-    def setX(self, x):
-        self.x = x
+	def setX(self, x):
+		self.x = x
 
-    def setY(self, y):
-        self.y = y
+	def setY(self, y):
+		self.y = y
 
-    def updateInternalState(self, dict):
-        self.setHeading(dict['Heading'])
-        self.setTurretHeading(dict['TurretHeading'])
-        self.setX(dict['X'])
-        self.setY(dict['Y'])
+	def updateInternalState(self, dict):
+		self.setHeading(dict['Heading'])
+		self.setTurretHeading(dict['TurretHeading'])
+		self.setX(dict['X'])
+		self.setY(dict['Y'])
 
 class InformationExtraction:
 	gameObjects = []
@@ -198,7 +198,7 @@ class InformationExtraction:
 			xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
 			ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])        
 			def det(a, b):
-	   			return a[0] * b[1] - a[1] * b[0]        
+				return a[0] * b[1] - a[1] * b[0]        
 			div = det(xdiff, ydiff)
 			if div == 0:
 				return "none"        

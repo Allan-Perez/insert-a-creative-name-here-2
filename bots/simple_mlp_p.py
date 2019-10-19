@@ -26,8 +26,8 @@ class Env:
 		logging.info(action)
 		# 	Send action to server
 		self.movement_controler.turnTank(random.random())
-    	self.movement_controler.move(random.random())
-    	self.movement_controler.turnTurret(random.random())
+		self.movement_controler.move(random.random())
+		self.movement_controler.turnTurret(random.random())
 
 		#	Retreive new observation
 		obs = self.info_extractor.getAllInfo()
