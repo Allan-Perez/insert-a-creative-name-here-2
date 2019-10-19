@@ -12,6 +12,7 @@ from communication import ServerComms
 from communication import ServerMessageTypes
 from movement import Movement
 from info import InformationExtraction
+from info import MyTank
 
 
 # Parse command line args
@@ -37,7 +38,9 @@ movement = Movement(gameServer)
 # Spawn our tank
 logging.info("Creating tank with name '{}'".format(args.name))
 gameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
+tankCreationMsg = gameServer.readMessage()
 
+myTank = MyTank(tankCreationMsg)
 
 # Main loop - read game messages, ignore them and randomly perform actions
 def mainLoop():
@@ -46,13 +49,11 @@ def mainLoop():
     movement.move(random.random())
     movement.turnTurret(random.random())
 
-
 # starter
 printedFps = False
 while True:
     logging.info(infoExtraction.getAllInfo())
     startTime = time.clock()
-    movement.stopAll()
     mainLoop()
     endTime = time.clock()
     fps = 1.0 / (endTime - startTime)

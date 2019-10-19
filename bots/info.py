@@ -1,14 +1,54 @@
 from communication import ServerComms
 from communication import ServerMessageTypes
-import numpy as np 
+import numpy as np
 import logging
 import time
 import math
 
+playground_points = [(70, 70), (70, -70), (40, -100), (40, -120), (-40, -120), (-40, -100), (-70, -70), (-70, 70),
+                     (-40, 70), (-40, 120), (40, 120), (40, 70)]
+class MyTank:
+    id = None
+    name = None
+    x = None
+    y = None
+    heading = None
+    turretHeading = None
 
-playground_points = [(70, 70), (70, -70), (40, -100), (40, -120), (-40, -120), (-40, -100), (-70, -70),(-70, 70), (-40, 70), (-40, 120), (40, 120), (40, 70)]
+    def __init__(self, dict):
+        self.id = dict['Id']
+        self.name = dict['Name']
+        self.x = dict['X']
+        self.y = dict['Y']
+        self.heading = dict['Heading']
+        self.turretHeading = dict['TurretHeading']
 
+    def getHeading(self):
+        return self.heading
 
+    def getTurretHeading(self):
+        return self.turretHeading
+
+    def getId(self):
+        return self.id
+
+    def setHeading(self, heading):
+        self.heading = heading
+
+    def setTurretHeading(self, turretheading):
+        self.turretHeading = turretheading
+
+    def setX(self, x):
+        self.x = x
+
+    def setY(self, y):
+        self.y = y
+
+    def updateInternalState(self, dict):
+        self.setHeading(dict['Heading'])
+        self.setTurretHeading(dict['TurretHeading'])
+        self.setX(dict['X'])
+        self.setY(dict['Y'])
 
 class InformationExtraction:
 	gameObjects = []
