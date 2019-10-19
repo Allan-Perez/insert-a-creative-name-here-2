@@ -6,23 +6,35 @@ import os.path
 tf.disable_eager_execution()
 
 class Env:
-	def __init__(self):
-		self.observation_space = 15
+	def __init__(self, movement_controler, info_extractor):
+		self.movement_controler = movement_controler
+		self.info_extractor = info_extractor
+
+		self.observation_space = self.movement_controler.obs_dim[0]
 		self.action_space = 7
 
 	def reset(self):
 		# 	Retreive first observation
+		return self.info_extractor.getAllInfo()
 
+	def compute_reward(self, obs):
 
-		return np.random.rand(15)
-	def compute_reward(self, state):
+		return np.random.rand()
 
 	def step(self, action):
-		# 	Send action to server
-		#	Retreive new observation
-		#	Compute Reward
-		#	Return new state, reward, and whether the game is over.
+		# Debugging purposes
 		logging.info(action)
+		# 	Send action to server
+		self.movement_controler.turnTank(random.random())
+    	self.movement_controler.move(random.random())
+    	self.movement_controler.turnTurret(random.random())
+
+		#	Retreive new observation
+		obs = self.info_extractor.getAllInfo()
+		#	Compute Reward
+		rew = self.compute_reward(obs)
+		
+		#	Return new state, reward, and whether the game is over
 		return np.random.rand(15), \
 			np.random.rand(), \
 			[False if np.random.rand()>1e-1 else True][0], \
@@ -34,19 +46,10 @@ def mlp(x, sizes, activation=tf.tanh, output_activation=None):
 		x = tf.layers.dense(x, units=size, activation=activation)
 	return tf.layers.dense(x, units=sizes[-1], activation=output_activation)
 
-def train(hidden_sizes=[32], lr=1e-2, premodel=False 
+def train(env, hidden_sizes=[32], lr=1e-2, premodel=False 
 		  epochs=50, batch_size=5000):
 
-	# make environment, check spaces, get obs / act dims
-	"""
-	env = gym.make(env_name)
-	assert isinstance(env.observation_space, Box), \
-		"This example only works for envs with continuous state spaces."
-	assert isinstance(env.action_space, Discrete), \
-		"This example only works for envs with discrete action spaces."
-	"""
 	models_dir = "models/"
-	env = Env()
 	obs_dim = env.observation_space # 
 	n_acts = env.action_space # q w e a s d and fire
 	if premodel:
@@ -79,7 +82,7 @@ def train(hidden_sizes=[32], lr=1e-2, premodel=False
 	sess.run(tf.global_variables_initializer())
 	if premodel:
 		saver.restore(sess, models_dir+premodel_file)
-# for training policy
+	# for training policy
 	def train_one_epoch():
 		# training > epochs[50] > batches[100] > episodes > steps
 		# the policy gradient update happens once each epoch 
@@ -136,11 +139,11 @@ def train(hidden_sizes=[32], lr=1e-2, premodel=False
 	# training loop
 	for i in range(epochs):
 		batch_loss, batch_rets, batch_lens = train_one_epoch()
-		print('epoch: %3d \t loss: %.3f \t return: %.3f \t ep_len: %.3f'%
+		logging.info('epoch: %3d \t loss: %.3f \t return: %.3f \t ep_len: %.3f'%
 				(i, batch_loss, np.mean(batch_rets), np.mean(batch_lens)))
 		# Save the variables to disk.
 		save_path = saver.save(sess, models_dir+file)
-		print("Model saved in path: %s" % save_path)
+		logging.info("Model saved in path: %s" % save_path)
 
 
 
@@ -150,12 +153,12 @@ if __name__ == '__main__':
 	parser.add_argument('-d', '--debug', action='store_true', help='Enable debug output')
 	parser.add_argument('-H', '--hostname', default='127.0.0.1', help='Hostname to connect to')
 	parser.add_argument('-p', '--port', default=8052, type=int, help='Port to connect to')
-	parser.add_argument('-n', '--name', default='TeamA:RandomBot', help='Name of bot')
+	parser.add_argument('-n', '--name', default='TeamA:SkynetMK1', help='Name of bot')
 	parser.add_argument('--lr', type=float, default=1e-2)
 	parser.add_argument('--premodel', type=bool, default=False)
 	args = parser.parse_args()
 
-	print('\nUsing simplest formulation of policy gradient.\n')
+	logging.info('\nUsing simplest formulation of policy gradient.\n')
 
 	# Set up console logging
 	if args.debug:
@@ -163,5 +166,17 @@ if __name__ == '__main__':
 	else:
 		logging.basicConfig(format='[%(asctime)s] %(message)s', level=logging.INFO)
 	
-	train(lr=args.lr, premodel=args.premodel)
+	# Connect to game server
+	gameServer = ServerComms(args.hostname, args.port)
+	# init information extraction library
+	infoExtraction = InformationExtraction(gameServer)
+	# init movement library
+	movement = Movement(gameServer)
+	# setup environment
+	env = Env(movement_controler=movement, info_extractor=infoExtraction)
+	# Spawn our tank
+	logging.info("Creating tank with name '{}'".format(args.name))
+	gameServer.sendMessage(ServerMessageTypes.CREATETANK, {'Name': args.name})
+
+	train(env=env, lr=args.lr, premodel=args.premodel)
 
