@@ -19,6 +19,10 @@ class InformationExtraction:
 	def __init__(self, gameServer):
 		self.gameServer = gameServer
 
+	def getAllInfo(self):
+		self.readObjectUpdate()
+		self.convertedGameObjects()
+
 	def readObjectUpdate(self):
 		message = self.gameServer.readMessage()
 		#18 means that it is a game object
