@@ -1,20 +1,20 @@
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import numpy as np
-
-
+import logging
+tf.disable_eager_execution()
 class Env:
 	def __init__(self):
-		self.observation_space = (15,)
-		self.action_space = (7,)
+		self.observation_space = 15
+		self.action_space = 7
 
 	def reset(self):
-		return np.random.rand(15,0), 
-			np.random.rand(),
-			[False if np.random.rand()>1e-1 else True][0],
-			np.random.rand()
+		return np.random.rand(15)
 	def step(self, action):
 		logging.info(action)
-		return self.reset()
+		return np.random.rand(15), \
+			np.random.rand(), \
+			[False if np.random.rand()>1e-1 else True][0], \
+			np.random.rand()
 
 def mlp(x, sizes, activation=tf.tanh, output_activation=None):
 	# feedforward neural network.
@@ -120,8 +120,8 @@ def train(env_name='CartPole-v0', hidden_sizes=[32], lr=1e-2,
 if __name__ == '__main__':
 	import argparse
 	parser = argparse.ArgumentParser()
-	# parser.add_argument('--env_name', '--env', type=str, default='CartPole-v0') # gym-specific
-	# parser.add_argument('--render', action='store_true') # gym-specific
+	parser.add_argument('--env_name', '--env', type=str, default='CartPole-v0') # gym-specific
+	parser.add_argument('--render', action='store_true') # gym-specific
 	parser.add_argument('--lr', type=float, default=1e-2)
 	args = parser.parse_args()
 	print('\nUsing simplest formulation of policy gradient.\n')
